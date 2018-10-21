@@ -153,10 +153,14 @@ public class NewPostActivity extends AppCompatActivity implements
                 mSubmit.setEnabled(false);
                 Long timestamp = System.currentTimeMillis();
 
-                String bitmapPath = "/" + FirebaseUtil.getCurrentUserId() + "/full/" + timestamp.toString() + "/";
-                String thumbnailPath = "/" + FirebaseUtil.getCurrentUserId() + "/thumb/" + timestamp.toString() + "/";
+                String bitmapPath1 = "/" + FirebaseUtil.getCurrentUserId() + "/full1/" + timestamp.toString() + "/";
+                String thumbnailPath1 = "/" + FirebaseUtil.getCurrentUserId() + "/thumb1/" + timestamp.toString() + "/";
+                String bitmapPath2 = "/" + FirebaseUtil.getCurrentUserId() + "/full2/" + timestamp.toString() + "/";
+                String thumbnailPath2 = "/" + FirebaseUtil.getCurrentUserId() + "/thumb2/" + timestamp.toString() + "/";
 
-                mTaskFragment.uploadPost(mResizedBitmap1, bitmapPath, mThumbnail1, thumbnailPath, mFileUri1.getLastPathSegment(), mFileUri2.getLastPathSegment(),
+                mTaskFragment.uploadPost(mResizedBitmap1 ,mResizedBitmap2
+                        ,bitmapPath1,bitmapPath2, mThumbnail1,mThumbnail2,thumbnailPath1,thumbnailPath2,
+                        mFileUri1.getLastPathSegment(), mFileUri2.getLastPathSegment(),
                         postText);
                 Intent intent = new Intent(NewPostActivity.this, FeedsActivity.class);
                 startActivity(intent);
@@ -204,8 +208,8 @@ public class NewPostActivity extends AppCompatActivity implements
 
 //                mImageView1.setImageURI(mFileUri1);
 
-                mTaskFragment.resizeBitmap(mFileUri1, THUMBNAIL_MAX_DIMENSION);
-                mTaskFragment.resizeBitmap(mFileUri1, FULL_SIZE_MAX_DIMENSION);
+                mTaskFragment.resizeBitmap1(mFileUri1, THUMBNAIL_MAX_DIMENSION);
+                mTaskFragment.resizeBitmap1(mFileUri1, FULL_SIZE_MAX_DIMENSION);
             }
         }
 
@@ -222,8 +226,8 @@ public class NewPostActivity extends AppCompatActivity implements
                 }
 //                Log.d(TAG, "Received file uri: " + mFileUri1.getPath()+ mFileUri2.getPath());
 //                mImageView2.setImageURI(mFileUri2);
-                mTaskFragment.resizeBitmap(mFileUri2, THUMBNAIL_MAX_DIMENSION);
-                mTaskFragment.resizeBitmap(mFileUri2, FULL_SIZE_MAX_DIMENSION);
+                mTaskFragment.resizeBitmap2(mFileUri2, THUMBNAIL_MAX_DIMENSION);
+                mTaskFragment.resizeBitmap2(mFileUri2, FULL_SIZE_MAX_DIMENSION);
             }
         }
     }

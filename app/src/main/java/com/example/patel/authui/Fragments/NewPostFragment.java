@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -117,42 +118,63 @@ public class NewPostFragment extends Fragment {
         return thumbnail2;
     }
 
-    public void resizeBitmap(Uri uri, int maxDimension) {
+    public void resizeBitmap1(Uri uri, int maxDimension) {
+        LoadResizedBitmapTask task = new LoadResizedBitmapTask(maxDimension);
+        task.execute(uri);
+    }
+    public void resizeBitmap2(Uri uri, int maxDimension) {
         LoadResizedBitmapTask task = new LoadResizedBitmapTask(maxDimension);
         task.execute(uri);
     }
 
-    public void uploadPost(Bitmap bitmap, String inBitmapPath, Bitmap thumbnail, String inThumbnailPath,
-                           String inFileName,String lastPathSegment1, String inPostText) {
+    public void uploadPost(Bitmap bitmap1, Bitmap bitmap2, String inBitmapPath1, String inBitmapPath2,
+                           Bitmap thumbnail1, Bitmap thumbnail2, String inThumbnailPath1, String inThumbnailPath2,
+                           String inFileName1, String inFileName2, String inPostText) {
 
-        UploadPostTask uploadTask = new UploadPostTask(bitmap, inBitmapPath, thumbnail, inThumbnailPath, inFileName,lastPathSegment1, inPostText);
+        UploadPostTask uploadTask = new UploadPostTask(bitmap1, bitmap2, inBitmapPath1, inBitmapPath2,
+                thumbnail1, thumbnail2, inThumbnailPath1, inThumbnailPath2, inFileName1, inFileName2, inPostText);
         uploadTask.execute();
     }
 
     class UploadPostTask extends AsyncTask<Void, Void, Void> {
-        private WeakReference<Bitmap> bitmapReference;
-        private WeakReference<Bitmap> thumbnailReference;
+        private WeakReference<Bitmap> bitmapReference1;
+        private WeakReference<Bitmap> thumbnailReference1;
+        private WeakReference<Bitmap> bitmapReference2;
+        private WeakReference<Bitmap> thumbnailReference2;
         private String postText;
         private String fileName;
         private String bitmapPath;
         private String thumbnailPath;
 
-        public UploadPostTask(Bitmap bitmap, String inBitmapPath, Bitmap thumbnail, String thumbnailPath, String inThumbnailPath,
-                              String inFileName, String inPostText) {
-            bitmapReference = new WeakReference<Bitmap>(bitmap);
-            thumbnailReference = new WeakReference<Bitmap>(thumbnail);
+        public UploadPostTask(Bitmap bitmap1, Bitmap bitmap2, String inBitmapPath1, String inBitmapPath2,
+                              Bitmap thumbnail1, Bitmap thumbnail2, String inThumbnailPath1, String inThumbnailPath2,
+                              String inFileName1, String inFileName2, String inPostText) {
+
+            bitmapReference1 = new WeakReference<>(bitmap1);
+            thumbnailReference1 = new WeakReference<>(thumbnail1);
+            bitmapReference2 = new WeakReference<>(bitmap2);
+            thumbnailReference2 = new WeakReference<>(thumbnail2);
             postText = inPostText;
-            fileName = inFileName;
-            bitmapPath = inBitmapPath;
-            thumbnailPath = inThumbnailPath;
+            fileName = inFileName1;
+            fileName = inFileName2;
+            bitmapPath = inBitmapPath1;
+            thumbnailPath = inThumbnailPath1;
+            bitmapPath = inBitmapPath2;
+            thumbnailPath = inThumbnailPath2;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
 
-            Bitmap fullSize = bitmapReference.get();
-            final Bitmap thumbnail = thumbnailReference.get();
-            if (fullSize == null || thumbnail == null) {
+            Bitmap fullSize1 = bitmapReference1.get();
+            final Bitmap thumbnail1 = thumbnailReference1.get();
+            if (fullSize1 == null || thumbnail1 == null) {
+                return null;
+            }
+
+            Bitmap fullSize2 = bitmapReference2.get();
+            final Bitmap thumbnail2 = thumbnailReference2.get();
+            if (fullSize2 == null || thumbnail2 == null) {
                 return null;
             }
             FirebaseStorage storageRef = FirebaseStorage.getInstance();
@@ -172,43 +194,59 @@ public class NewPostFragment extends Fragment {
             Log.d(TAG, fullSizeRef2.toString());
             Log.d(TAG, thumbnailRef2.toString());
 
-            ByteArrayOutputStream fullSizeStream = new ByteArrayOutputStream();
-            fullSize.compress(Bitmap.CompressFormat.JPEG, 90, fullSizeStream);
-            byte[] bytes = fullSizeStream.toByteArray();
-            fullSizeRef1.putBytes(bytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+            final User author = FirebaseUtil.getAuthor();
+            final DatabaseReference ref = FirebaseUtil.getBaseRef();
+            final DatabaseReference postsRef = FirebaseUtil.getPostsRef();
+            final String newPostKey = postsRef.push().getKey();
+
+           final DatabaseReference databaseReference = FirebaseDatabase.getInstance()
+                    .getReference("posts")
+                    .child(newPostKey);
+
+            ByteArrayOutputStream fullSizeStream1 = new ByteArrayOutputStream();
+            ByteArrayOutputStream fullSizeStream2 = new ByteArrayOutputStream();
+
+            fullSize1.compress(Bitmap.CompressFormat.JPEG, 90, fullSizeStream1);
+            byte[] bytes1 = fullSizeStream1.toByteArray();
+
+            fullSize2.compress(Bitmap.CompressFormat.JPEG, 90, fullSizeStream2);
+            byte[] bytes2 = fullSizeStream2.toByteArray();
+
+            fullSizeRef1.putBytes(bytes1).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    final Uri fullSizeUrl =
+
+                    final Uri fullSizeUrl1 =
                             taskSnapshot.getDownloadUrl();
 
                     ByteArrayOutputStream thumbnailStream = new ByteArrayOutputStream();
-                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 70, thumbnailStream);
+                    thumbnail1.compress(Bitmap.CompressFormat.JPEG, 70, thumbnailStream);
                     thumbnailRef1.putBytes(thumbnailStream.toByteArray())
                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    final DatabaseReference ref = FirebaseUtil.getBaseRef();
-                                    DatabaseReference postsRef = FirebaseUtil.getPostsRef();
-                                    final String newPostKey = postsRef.push().getKey();
-                                    final Uri thumbnailUrl =
+
+                                    final Uri thumbnailUrl1 =
                                             taskSnapshot.getDownloadUrl();
-                                    User author = FirebaseUtil.getAuthor();
                                     if (author == null) {
 //                                        FirebaseCrash.logcat(Log.ERROR, TAG, "Couldn't upload post: Couldn't get signed in user.");
                                         mCallbacks.onPostUploaded(mApplicationContext.getString(
                                                 R.string.error_user_not_signed_in));
                                         return;
                                     }
-                                    Post newPost = new Post(author, postText, ServerValue.TIMESTAMP, fullSizeUrl.toString(),
-                                            thumbnailUrl.toString(), fullSizeRef1.toString()
-                                    );
-
+                                    Post post = new Post(author, postText, fullSizeUrl1.toString(),
+                                            "", thumbnailUrl1.toString(),
+                                            "", thumbnailRef1.toString(),
+                                           "", fullSizeRef1.toString(),
+                                            "",
+                                            ServerValue.TIMESTAMP);
 
                                     Map<String, Object> updatedUserData = new HashMap<>();
                                     updatedUserData.put(FirebaseUtil.getPeoplePath() + author.getUserId() + "/posts/"
                                             + newPostKey, true);
                                     updatedUserData.put(FirebaseUtil.getPostsPath() + newPostKey,
-                                            new ObjectMapper().convertValue(newPost, Map.class));
+                                            new ObjectMapper().convertValue(post, Map.class));
                                     ref.updateChildren(updatedUserData, new DatabaseReference.CompletionListener() {
                                         @Override
                                         public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
@@ -227,12 +265,70 @@ public class NewPostFragment extends Fragment {
 
                                 }
                             });
+                }
+            });
+
+            fullSizeRef2.putBytes(bytes2).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    final Uri fullSizeUrl2 =
+                            taskSnapshot.getDownloadUrl();
+
+                    ByteArrayOutputStream thumbnailStream1 = new ByteArrayOutputStream();
+                    thumbnail2.compress(Bitmap.CompressFormat.JPEG, 70, thumbnailStream1);
+                    thumbnailRef2.putBytes(thumbnailStream1.toByteArray())
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    final Uri thumbnailUrl2 =
+                                            taskSnapshot.getDownloadUrl();
+//                                    if (author == null) {
+////                                        FirebaseCrash.logcat(Log.ERROR, TAG, "Couldn't upload post: Couldn't get signed in user.");
+//                                        mCallbacks.onPostUploaded(mApplicationContext.getString(
+//                                                R.string.error_user_not_signed_in));
+//                                        return;
+//                                    }
+
+                                    databaseReference.child("imageUrl2").setValue(fullSizeUrl2.toString());
+                                    databaseReference.child("thumb_url2").setValue(thumbnailUrl2.toString());
+                                    databaseReference.child("thumb_storage_uri2").setValue(thumbnailRef2.toString());
+                                    databaseReference.child("full_storage_uri2").setValue(fullSizeRef2.toString());
+//                                    Post post = new Post(author, postText, "",
+//                                            fullSizeUrl.toString(), "",
+//                                            thumbnailUrl.toString(), thumbnailRef1.toString(),
+//                                            thumbnailRef2.toString(), fullSizeRef1.toString(),
+//                                            fullSizeRef2.toString(),
+//                                            ServerValue.TIMESTAMP);
+//                                    postsRef.child("imageUrl2").setValue(fullSizeUrl.toString());
+//                                    postsRef.child("thumb_url2").setValue(thumbnailUrl.toString());
+//////                                    ref.child("thumb_storage_uri2").setValue(thumbnailRef2.toString());
+////                                    ref.child("full_storage_uri2").setValue(fullSizeRef2.toString());
+//                                    postsRef.push();
+//
+//                                    Map<String, Object> updatedUserData = new HashMap<>();
+//                                    updatedUserData.put(FirebaseUtil.getPeoplePath() + author.getUserId() + "/posts/"
+//                                            + newPostKey, true);
+//                                    updatedUserData.put(FirebaseUtil.getPostsPath() + newPostKey,
+//                                            new ObjectMapper().convertValue(post, Map.class));
+//                                    ref.updateChildren(updatedUserData, new DatabaseReference.CompletionListener() {
+//                                        @Override
+//                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+//                                            if (databaseError == null) {
+//                                                mCallbacks.onPostUploaded(null);
+//                                            }
+//                                        }
+//                                    });
+
+                                }
+                            });
 
                 }
             });
             return null;
         }
+
     }
+
 
     @SuppressLint("StaticFieldLeak")
     class LoadResizedBitmapTask extends AsyncTask<Uri, Void, Bitmap> {
@@ -293,7 +389,7 @@ public class NewPostFragment extends Fragment {
         return inSampleSize;
     }
 
-    private InputStream streamFromUri(Uri fileUri) throws FileNotFoundException {
+    private InputStream streamFromUri1(Uri fileUri) throws FileNotFoundException {
         return new BufferedInputStream(
                 mApplicationContext.getContentResolver().openInputStream(fileUri));
     }
@@ -302,7 +398,7 @@ public class NewPostFragment extends Fragment {
             throws IOException {
 
         // First decode with inJustDecodeBounds=true to check dimensions
-        InputStream stream = streamFromUri(fileUri);
+        InputStream stream = streamFromUri1(fileUri);
         stream.mark(stream.available());
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -315,7 +411,7 @@ public class NewPostFragment extends Fragment {
         BitmapFactory.decodeStream(stream, null, options);
         stream.close();
 
-        InputStream freshStream = streamFromUri(fileUri);
+        InputStream freshStream = streamFromUri1(fileUri);
         return BitmapFactory.decodeStream(freshStream, null, options);
     }
 }
