@@ -27,6 +27,8 @@ import com.example.patel.authui.Model.Post;
 import com.example.patel.authui.R;
 import com.example.patel.authui.Utils.FirebaseUtil;
 import com.example.patel.authui.Utils.GlideUtil;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,16 +62,23 @@ public class UserDetails extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+//        Bundle bundle = getArguments();
+//        if (bundle != null) {
+//            mUserId = bundle.getString(USER_ID_EXTRA_NAME);
+////            Log.i("mUserId",mUserId);
+//        }else {
+////            Log.e("er","ERROR");
+//        }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        mUserId = user.getUid();
+
 
         final View rootView = inflater.inflate(R.layout.fragment_user_details, container, false);
 
 //        String getArgument = getArguments().getString("data");
 //       mUserId = getArgument;
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            mUserId = bundle.getString(USER_ID_EXTRA_NAME);
-            Log.v(TAG,mUserId);
-        }
+
+
 
 //        Intent intent = getActivity(). getIntent();
 //        mUserId = intent.getStringExtra(USER_ID_EXTRA_NAME);
@@ -78,142 +87,142 @@ public class UserDetails extends Fragment {
 //        setSupportActionBar(toolbar);
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        final CollapsingToolbarLayout collapsingToolbar =
-//                rootView.findViewById(R.id.collapsing_toolbar);
-//        // TODO: Investigate why initial toolbar title is activity name instead of blank.
-//
-//        mPeopleRef = FirebaseUtil.getPeopleRef();
-//        final String currentUserId = FirebaseUtil.getCurrentUserId();
-//
-//        final FloatingActionButton followUserFab = rootView.findViewById(R.id
-//                .follow_user_fab);
-//        mFollowingListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    followUserFab.setImageDrawable(ContextCompat.getDrawable(
-//                            getContext(), R.drawable.ic_baseline_home_24px));
-//                } else {
-//                    followUserFab.setImageDrawable(ContextCompat.getDrawable(
-//                            getActivity(), R.drawable.ic_baseline_person_outline_24px));
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError firebaseError) {
-//
-//            }
-//        };
-////        if (currentUserId != null) {
-////            mPeopleRef.child(currentUserId).child("following").child(mUserId)
-////                    .addValueEventListener(mFollowingListener);
-////        }
-////        followUserFab.setOnClickListener(new View.OnClickListener() {
-////            @Override
-////            public void onClick(View view) {
-////                if (currentUserId == null) {
-//////                    Toast.makeText(UserDetailActivity.this, "You need to sign in to follow someone.",
-//////                            Toast.LENGTH_SHORT).show();
-//////                    return;
-////                }
-////                // TODO: Convert these to actually not be single value, for live updating when
-////                // current user follows.
-////                mPeopleRef.child(currentUserId).child("following").child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
-////                    @Override
-////                    public void onDataChange(DataSnapshot dataSnapshot) {
-////                        Map<String, Object> updatedUserData = new HashMap<>();
-////                        if (dataSnapshot.exists()) {
-////                            // Already following, need to unfollow
-////                            updatedUserData.put("people/" + currentUserId + "/following/" + mUserId, null);
-////                            updatedUserData.put("followers/" + mUserId + "/" + currentUserId, null);
-////                        } else {
-////                            updatedUserData.put("people/" + currentUserId + "/following/" + mUserId, true);
-////                            updatedUserData.put("followers/" + mUserId + "/" + currentUserId, true);
-////                        }
-////                        FirebaseUtil.getBaseRef().updateChildren(updatedUserData, new DatabaseReference.CompletionListener() {
-////                            @Override
-////                            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-////                                if (firebaseError != null) {
-//////                                    Toast.makeText(UserDetailActivity.this, R.string
-//////                                            .follow_user_error, Toast.LENGTH_LONG).show();
-//////                                    Log.d(TAG, getString(R.string.follow_user_error) + "\n" +
-//////                                            firebaseError.getMessage());
-////                                }
-////                            }
-////                        });
-////                    }
-////
-////                    @Override
-////                    public void onCancelled(DatabaseError firebaseError) {
-////
-////                    }
-////                });
-////            }
-////        });
-//
-//        mRecyclerGrid = rootView.findViewById(R.id.user_posts_grid);
-//        mGridAdapter = new GridAdapter();
-//        mRecyclerGrid.setAdapter(mGridAdapter);
-//        mRecyclerGrid.setLayoutManager(new GridLayoutManager(getContext(), GRID_NUM_COLUMNS));
-//
-//        mPersonRef = FirebaseUtil.getPeopleRef().child(mUserId);
-//        mPersonInfoListener = mPersonRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                Person person = dataSnapshot.getValue(Person.class);
-//                Log.w(TAG, "mPersonRef:" + mPersonRef.getKey());
-//                CircleImageView userPhoto = rootView.findViewById(R.id.user_detail_photo);
-//                GlideUtil.loadProfileIcon(person.getPhotoUrl(), userPhoto);
-//                String name = person.getDisplayName();
-//                if (name == null) {
-//                    name = getString(R.string.user_info_no_name);
-//                }
-//                collapsingToolbar.setTitle(name);
-//                if (person.getFollowing() != null) {
-//                    int numFollowing = person.getFollowing().size();
-//                    ((TextView) rootView.findViewById(R.id.user_num_following))
-//                            .setText(numFollowing + " following");
-//                }
-//                List<String> paths = new ArrayList<>(person.getPosts().keySet());
-//                mGridAdapter.addPaths(paths);
-//                String firstPostKey = paths.get(0);
-//
-//                FirebaseUtil.getPostsRef().child(firstPostKey).addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        Post post = dataSnapshot.getValue(Post.class);
-//
-//                        ImageView imageView = rootView.findViewById(R.id.backdrop);
-//                        GlideUtil.loadImage(post.getImageUrl1(), imageView);
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError firebaseError) {
-//
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError firebaseError) {
-//
-//            }
-//        });
-//        mFollowersRef = FirebaseUtil.getFollowersRef().child(mUserId);
-//        mFollowersListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                long numFollowers = dataSnapshot.getChildrenCount();
-//                ((TextView) rootView.findViewById(R.id.user_num_followers))
-//                        .setText(numFollowers + " follower" + (numFollowers == 1 ? "" : "s"));
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        };
-//        mFollowersRef.addValueEventListener(mFollowersListener);
+        final CollapsingToolbarLayout collapsingToolbar =
+                rootView.findViewById(R.id.collapsing_toolbar);
+        // TODO: Investigate why initial toolbar title is activity name instead of blank.
+
+        mPeopleRef = FirebaseUtil.getPeopleRef();
+        final String currentUserId = FirebaseUtil.getCurrentUserId();
+
+        final FloatingActionButton followUserFab = rootView.findViewById(R.id
+                .follow_user_fab);
+        mFollowingListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    followUserFab.setImageDrawable(ContextCompat.getDrawable(
+                            getContext(), R.drawable.ic_baseline_home_24px));
+                } else {
+                    followUserFab.setImageDrawable(ContextCompat.getDrawable(
+                            getActivity(), R.drawable.ic_baseline_person_outline_24px));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+            }
+        };
+        if (currentUserId != null) {
+            mPeopleRef.child(currentUserId).child("following").child(mUserId)
+                    .addValueEventListener(mFollowingListener);
+        }
+        followUserFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (currentUserId == null) {
+//                    Toast.makeText(UserDetailActivity.this, "You need to sign in to follow someone.",
+//                            Toast.LENGTH_SHORT).show();
+//                    return;
+                }
+                // TODO: Convert these to actually not be single value, for live updating when
+                // current user follows.
+                mPeopleRef.child(currentUserId).child("following").child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Map<String, Object> updatedUserData = new HashMap<>();
+                        if (dataSnapshot.exists()) {
+                            // Already following, need to unfollow
+                            updatedUserData.put("people/" + currentUserId + "/following/" + mUserId, null);
+                            updatedUserData.put("followers/" + mUserId + "/" + currentUserId, null);
+                        } else {
+                            updatedUserData.put("people/" + currentUserId + "/following/" + mUserId, true);
+                            updatedUserData.put("followers/" + mUserId + "/" + currentUserId, true);
+                        }
+                        FirebaseUtil.getBaseRef().updateChildren(updatedUserData, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
+                                if (firebaseError != null) {
+//                                    Toast.makeText(UserDetailActivity.this, R.string
+//                                            .follow_user_error, Toast.LENGTH_LONG).show();
+//                                    Log.d(TAG, getString(R.string.follow_user_error) + "\n" +
+//                                            firebaseError.getMessage());
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError firebaseError) {
+
+                    }
+                });
+            }
+        });
+
+        mRecyclerGrid = rootView.findViewById(R.id.user_posts_grid);
+        mGridAdapter = new GridAdapter();
+        mRecyclerGrid.setAdapter(mGridAdapter);
+        mRecyclerGrid.setLayoutManager(new GridLayoutManager(getContext(), GRID_NUM_COLUMNS));
+
+        mPersonRef = FirebaseUtil.getPeopleRef().child(mUserId);
+        mPersonInfoListener = mPersonRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Person person = dataSnapshot.getValue(Person.class);
+                Log.w(TAG, "mPersonRef:" + mPersonRef.getKey());
+                CircleImageView userPhoto = rootView.findViewById(R.id.user_detail_photo);
+                GlideUtil.loadProfileIcon(person.getPhotoUrl(), userPhoto);
+                String name = person.getDisplayName();
+                if (name == null) {
+                    name = getString(R.string.user_info_no_name);
+                }
+                collapsingToolbar.setTitle(name);
+                if (person.getFollowing() != null) {
+                    int numFollowing = person.getFollowing().size();
+                    ((TextView) rootView.findViewById(R.id.user_num_following))
+                            .setText(numFollowing + " following");
+                }
+                List<String> paths = new ArrayList<>(person.getPosts().keySet());
+                mGridAdapter.addPaths(paths);
+                String firstPostKey = paths.get(0);
+
+                FirebaseUtil.getPostsRef().child(firstPostKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Post post = dataSnapshot.getValue(Post.class);
+
+                        ImageView imageView = rootView.findViewById(R.id.backdrop);
+                        GlideUtil.loadImage(post.getImageUrl1(), imageView);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError firebaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+            }
+        });
+        mFollowersRef = FirebaseUtil.getFollowersRef().child(mUserId);
+        mFollowersListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long numFollowers = dataSnapshot.getChildrenCount();
+                ((TextView) rootView.findViewById(R.id.user_num_followers))
+                        .setText(numFollowers + " follower" + (numFollowers == 1 ? "" : "s"));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        mFollowersRef.addValueEventListener(mFollowersListener);
         return rootView;
     }
 

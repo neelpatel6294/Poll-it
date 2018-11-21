@@ -2,9 +2,11 @@ package com.example.patel.authui.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -17,9 +19,13 @@ import android.widget.TextView;
 import com.example.patel.authui.FeedsActivity;
 import com.example.patel.authui.Fragments.UserDetails;
 import com.example.patel.authui.R;
+import com.example.patel.authui.UserDetailActivity;
 import com.example.patel.authui.Utils.GlideUtil;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
 
@@ -28,7 +34,10 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public DatabaseReference mPostRef;
     public ValueEventListener mPostListener;
 
+
+
     public enum LikeStatus {LIKED, NOT_LIKED}
+    public enum VoteStatus{VOTED,NOT_VOTED}
 
     private final ImageView mLikeIcon;
     private static final int POST_TEXT_MAX_LINES = 6;
@@ -41,6 +50,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private TextView mNumLikesView;
     public String mPostKey;
     public ValueEventListener mLikeListener;
+    public ValueEventListener mVoteListener;
+
+    public TextView mNumVotes;
 
 
     public PostViewHolder(@NonNull View itemView) {
@@ -53,6 +65,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         mAuthorView = mView.findViewById(R.id.post_author_name);
         mPostTextView = itemView.findViewById(R.id.post_text);
         mNumLikesView = itemView.findViewById(R.id.number_of_Likes);
+        mNumVotes = itemView.findViewById(R.id.number_of_Total_Votes);
 
         itemView.findViewById(R.id.post_comment_icon).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,11 +73,28 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 mListener.showComments();
             }
         });
+
+
         mLikeIcon = itemView.findViewById(R.id.post_like_icon);
         mLikeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.toggleLike();
+            }
+        });
+
+        mPhotoView1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.votes();
+                
+            }
+        });
+
+        mPhotoView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.votes();
             }
         });
     }
@@ -96,29 +126,27 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             @Override
             public void onClick(View view) {
                 showUserDetail(authorId);
-
-                FeedsActivity activity = (FeedsActivity) mView.getContext();
-                Fragment fragment = new UserDetails();
-                activity.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frame_container, fragment)
-                        .addToBackStack(null).commit();
             }
         });
     }
 
     private void showUserDetail(String authorId) {
+//
+//        Bundle bundle = new Bundle();
+//        bundle.putString(UserDetails.USER_ID_EXTRA_NAME, authorId);
+//        Fragment userDetails = new UserDetails();
+//        userDetails.setArguments(bundle);
+//
+//        FeedsActivity activity = (FeedsActivity) mView.getContext();
+//        activity.getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.frame_container, userDetails)
+//                .addToBackStack(null).commit();
+//
 
-        Bundle bundle = new Bundle();
-        String details = UserDetails.USER_ID_EXTRA_NAME;
-        bundle.putString(details, authorId);
-        UserDetails userDetails = new UserDetails();
-        userDetails.setArguments(bundle);
-
-
-//        Context context = mView.getContext();
-//        Intent userDetailIntent = new Intent(context, UserDetailActivity.class);
-//        userDetailIntent.putExtra(UserDetailActivity.USER_ID_EXTRA_NAME, authorId);
-//        context.startActivity(userDetailIntent);
+        Context context = mView.getContext();
+        Intent userDetailIntent = new Intent(context, UserDetailActivity.class);
+        userDetailIntent.putExtra(UserDetailActivity.USER_ID_EXTRA_NAME, authorId);
+        context.startActivity(userDetailIntent);
 
     }
 
@@ -143,6 +171,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+
+    public void setNumVotes(VoteStatus voted, Context context) {
+    }
+    public void setNumVotes(long numVotes) {
+        String suffix = numVotes == 1 ? " Vote" : " Votes";
+        mNumVotes.setText(numVotes + suffix);
+    }
+
     public void setTimestamp(String timestamp) {
         mTimestampView.setText(timestamp);
     }
@@ -163,8 +199,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     public interface PostClickListener {
         void showComments();
-
         void toggleLike();
+
+        void votes();
     }
 
 }

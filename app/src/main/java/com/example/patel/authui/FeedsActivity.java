@@ -83,6 +83,7 @@ public class FeedsActivity extends AppCompatActivity implements PostFragment.OnP
                 case R.id.navigation_profile:
                     toolbar.setTitle("User Detail");
                     fragment = new UserDetails();
+
                     loadFragment(fragment);
                     return true;
             }
@@ -117,6 +118,28 @@ public class FeedsActivity extends AppCompatActivity implements PostFragment.OnP
                     postLikesRef.child(postKey).child(userKey).removeValue();
                 } else {
                     postLikesRef.child(postKey).child(userKey).setValue(ServerValue.TIMESTAMP);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onPostVoted(final String postKey) {
+        final String userKey = FirebaseUtil.getCurrentUserId();
+        final DatabaseReference postVotesRef = FirebaseUtil.getVotesRef();
+        postVotesRef.child(postKey).child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // User already liked this post, so we toggle like off.
+                    postVotesRef.child(postKey).child(userKey).removeValue();
+                } else {
+                    postVotesRef.child(postKey).child(userKey).setValue(ServerValue.TIMESTAMP);
                 }
             }
 

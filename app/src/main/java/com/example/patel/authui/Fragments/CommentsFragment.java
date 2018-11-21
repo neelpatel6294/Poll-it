@@ -45,6 +45,7 @@ import com.example.patel.authui.FeedsActivity;
 import com.example.patel.authui.Model.Comment;
 import com.example.patel.authui.Model.User;
 import com.example.patel.authui.R;
+import com.example.patel.authui.UserDetailActivity;
 import com.example.patel.authui.Utils.FirebaseUtil;
 import com.example.patel.authui.Utils.GlideUtil;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -107,9 +108,9 @@ public class CommentsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
-        RecyclerView mCommentsView = (RecyclerView) rootView.findViewById(R.id.comment_list);
-        mEditText = (EditText) rootView.findViewById(R.id.editText);
-        final Button sendButton = (Button) rootView.findViewById(R.id.send_comment);
+        RecyclerView mCommentsView = rootView.findViewById(R.id.comment_list);
+        mEditText = rootView.findViewById(R.id.editText);
+        final Button sendButton = rootView.findViewById(R.id.send_comment);
 
 
         final DatabaseReference commentsRef = FirebaseUtil.getCommentsRef().child(mPostRef);
@@ -226,31 +227,31 @@ public class CommentsFragment extends Fragment {
 
         public CommentViewHolder(View itemView) {
             super(itemView);
-            commentPhoto = (ImageView) itemView.findViewById(R.id.comment_author_icon);
-            commentText = (TextView) itemView.findViewById(R.id.comment_text);
-            commentAuthor = (TextView) itemView.findViewById(R.id.comment_name);
-            commentTime = (TextView) itemView.findViewById(R.id.comment_time);
+            commentPhoto = itemView.findViewById(R.id.comment_author_icon);
+            commentText = itemView.findViewById(R.id.comment_text);
+            commentAuthor = itemView.findViewById(R.id.comment_name);
+            commentTime = itemView.findViewById(R.id.comment_time);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (authorRef != null) {
                         Context context = v.getContext();
-//                        Intent userDetailIntent = new Intent(context, UserDetailActivity.class);
-//                        userDetailIntent.putExtra(UserDetailActivity.USER_ID_EXTRA_NAME,
-//                                authorRef);
-//                        context.startActivity(userDetailIntent);
+                        Intent userDetailIntent = new Intent(context, UserDetailActivity.class);
+                        userDetailIntent.putExtra(UserDetailActivity.USER_ID_EXTRA_NAME,
+                                authorRef);
+                        context.startActivity(userDetailIntent);
 
-                        Bundle bundle = new Bundle();
-                        String details = UserDetails.USER_ID_EXTRA_NAME;
-                        bundle.putString(details, authorRef);
-                        UserDetails userDetails = new UserDetails();
-                        userDetails.setArguments(bundle);
-
-                        FeedsActivity activity = (FeedsActivity) v.getContext();
-                        Fragment fragment = new UserDetails();
-                        activity.getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.frame_container, fragment)
-                                .addToBackStack(null).commit();
+//                        Bundle bundle = new Bundle();
+//                        String details = UserDetails.USER_ID_EXTRA_NAME;
+//                        bundle.putString(details, authorRef);
+//                        Fragment userDetails = new UserDetails();
+//                        userDetails.setArguments(bundle);
+//
+//                        FeedsActivity activity = (FeedsActivity) v.getContext();
+//                        activity.getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.frame_container, userDetails)
+//                                .addToBackStack(null).commit();
 
                     }
                 }

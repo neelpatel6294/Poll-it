@@ -23,6 +23,7 @@ import com.example.patel.authui.Utils.FirebaseUtil;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,7 +48,8 @@ public abstract class PostListFragment extends Fragment {
     private int mRecyclerViewPosition = 0;
     private static final String KEY_LAYOUT_POSITION = "layoutPosition";
 
-    public PostListFragment() {}
+    public PostListFragment() {
+    }
 
 
     @Nullable
@@ -97,7 +99,6 @@ public abstract class PostListFragment extends Fragment {
                 final DatabaseReference postRef = getRef(position);
 
 
-
                 setupPost(viewHolder, model, position, null);
                 // Set click listener for the whole post view
                 final String postKey = postRef.getKey();
@@ -137,7 +138,6 @@ public abstract class PostListFragment extends Fragment {
     }
 
 
-
     private void setupPost(final PostViewHolder postViewHolder, final Post post, final int position, final String inPostKey) {
         postViewHolder.setPhoto1(post.getImageUrl1());
         postViewHolder.setPhoto2(post.getImageUrl2());
@@ -172,8 +172,29 @@ public abstract class PostListFragment extends Fragment {
             }
         };
 
+        ValueEventListener voteListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                postViewHolder.setNumVotes(dataSnapshot.getChildrenCount());
+                if (dataSnapshot.hasChild(FirebaseUtil.getCurrentUserId())) {
+                    postViewHolder.setNumVotes(PostViewHolder.VoteStatus.VOTED, getActivity());
+                } else {
+                    postViewHolder.setNumVotes(PostViewHolder.VoteStatus.VOTED, getActivity());
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
         FirebaseUtil.getLikesRef().child(postKey).addValueEventListener(likeListener);
         postViewHolder.mLikeListener = likeListener;
+
+        FirebaseUtil.getVotesRef().child(postKey).addValueEventListener(voteListener);
+        postViewHolder.mVoteListener = voteListener;
 
         postViewHolder.setPostClickListener(new PostViewHolder.PostClickListener() {
             @Override
@@ -187,6 +208,14 @@ public abstract class PostListFragment extends Fragment {
                 Log.d(TAG, "Like position: " + position);
                 mListener.onPostLike(postKey);
             }
+
+            @Override
+            public void votes() {
+                mListener.onPostVoted(postKey);
+
+            }
+
+
         });
 
     }
@@ -209,6 +238,7 @@ public abstract class PostListFragment extends Fragment {
         }
         return scrollPosition;
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -234,7 +264,11 @@ public abstract class PostListFragment extends Fragment {
 
     public interface OnPostSelectedListener {
         void onPostComment(String postKey);
+
         void onPostLike(String postKey);
+
+        void onPostVoted(String postKey);
+
     }
 
     @Override
