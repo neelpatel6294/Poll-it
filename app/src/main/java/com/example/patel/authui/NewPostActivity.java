@@ -36,7 +36,7 @@ import butterknife.ButterKnife;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class NewPostActivity extends AppCompatActivity implements
+public class NewPostActivity extends BaseActivity implements
         EasyPermissions.PermissionCallbacks,
         NewPostFragment.TaskCallbacks {
 
@@ -149,7 +149,7 @@ public class NewPostActivity extends AppCompatActivity implements
 
                     return;
                 }
-//                showProgressDialog(getString(R.string.post_upload_progress_message));
+                showProgressDialog(getString(R.string.post_upload_progress_message));
                 mSubmit.setEnabled(false);
                 Long timestamp = System.currentTimeMillis();
 
@@ -162,8 +162,8 @@ public class NewPostActivity extends AppCompatActivity implements
                         ,bitmapPath1,bitmapPath2, mThumbnail1,mThumbnail2,thumbnailPath1,thumbnailPath2,
                         mFileUri1.getLastPathSegment(), mFileUri2.getLastPathSegment(),
                         postText);
-                Intent intent = new Intent(NewPostActivity.this, FeedsActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(NewPostActivity.this, FeedsActivity.class);
+//                startActivity(intent);
             }
         });
 

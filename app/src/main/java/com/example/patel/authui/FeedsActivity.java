@@ -12,6 +12,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -61,7 +63,11 @@ public class FeedsActivity extends AppCompatActivity implements PostFragment.OnP
             }
         });
 
+
+
     }
+
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -83,7 +89,6 @@ public class FeedsActivity extends AppCompatActivity implements PostFragment.OnP
                 case R.id.navigation_profile:
                     toolbar.setTitle("User Detail");
                     fragment = new UserDetails();
-
                     loadFragment(fragment);
                     return true;
             }

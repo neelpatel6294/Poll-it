@@ -320,7 +320,7 @@ public class UserDetails extends Fragment {
             imageView = itemView;
         }
     }
-
+//
 //    @Override
 //    public boolean onSupportNavigateUp() {
 //        finish();

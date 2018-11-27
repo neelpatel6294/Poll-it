@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,8 @@ import com.example.patel.authui.R;
 import com.example.patel.authui.Utils.FirebaseUtil;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +43,7 @@ public abstract class PostListFragment extends Fragment {
     // [START define_database_reference]
     private DatabaseReference mDatabase;
     // [END define_database_reference]
+    DatabaseReference mfirebase;
 
     private FirebaseRecyclerAdapter<Post, PostViewHolder> mAdapter;
     private RecyclerView mRecycler;
@@ -61,6 +65,7 @@ public abstract class PostListFragment extends Fragment {
         // [START create_database_reference]
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END create_database_reference]
+        mfirebase = FirebaseDatabase.getInstance().getReference().child("posts");
 
         mRecycler = rootView.findViewById(R.id.my_recycler_view);
         mRecycler.setHasFixedSize(true);
@@ -95,11 +100,15 @@ public abstract class PostListFragment extends Fragment {
             }
 
             @Override
-            protected void onBindViewHolder(PostViewHolder viewHolder, int position, final Post model) {
+            protected void onBindViewHolder(PostViewHolder viewHolder, final int position, final Post model) {
                 final DatabaseReference postRef = getRef(position);
 
-
+                viewHolder.itemView.setTag(postRef.getKey());
                 setupPost(viewHolder, model, position, null);
+
+
+
+
                 // Set click listener for the whole post view
                 final String postKey = postRef.getKey();
 //                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -132,8 +141,12 @@ public abstract class PostListFragment extends Fragment {
 //                        onStarClicked(userPostRef);
 //                    }
 //                });
+
+
+
             }
         };
+
         mRecycler.setAdapter(mAdapter);
     }
 
@@ -217,6 +230,20 @@ public abstract class PostListFragment extends Fragment {
 
 
         });
+
+//        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+//
+//            @Override
+//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+//                return false;
+//            }
+//
+//            @Override
+//            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+//                mAdapter.getRef(position).removeValue();
+//            }
+//        }).attachToRecyclerView(mRecycler);
+
 
     }
 
