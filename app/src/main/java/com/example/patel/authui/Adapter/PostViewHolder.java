@@ -21,6 +21,7 @@ import com.example.patel.authui.Fragments.UserDetails;
 import com.example.patel.authui.R;
 import com.example.patel.authui.UserDetailActivity;
 import com.example.patel.authui.Utils.GlideUtil;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
@@ -147,6 +148,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         Intent userDetailIntent = new Intent(context, UserDetailActivity.class);
         userDetailIntent.putExtra(UserDetailActivity.USER_ID_EXTRA_NAME, authorId);
         context.startActivity(userDetailIntent);
+
+    }
+    public void deletePost(int position){
 
     }
 
