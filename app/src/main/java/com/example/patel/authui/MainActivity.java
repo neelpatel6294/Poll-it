@@ -32,6 +32,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
+    FirebaseUser firebaseUser;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                                     .setAvailableProviders(Arrays.asList(
                                             new AuthUI.IdpConfig.GoogleBuilder().build(),
                                             new AuthUI.IdpConfig.EmailBuilder().build()))
-
+                                    .setLogo(R.drawable.ic_vote1)
                                     .build(),
                             RC_SIGN_IN);
                 }
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if (currentUser != null && !currentUser.isAnonymous()) {
 //            dismissProgressDialog();
-            showSignedInUI(currentUser);
+            showSignedInUI();
         } else {
             Toast.makeText(this, "Sign Out", Toast.LENGTH_SHORT).show();
         }
@@ -142,30 +143,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showSignedInUI(FirebaseUser firebaseUser) {
-
-        if (firebaseUser.getDisplayName() != null){
-            userName.setText(firebaseUser.getDisplayName());
-        }
-        if (firebaseUser.getPhotoUrl() != null) {
-            GlideUtil.loadProfileIcon(firebaseUser.getPhotoUrl().toString(), profile_image);
-        }
-        Map<String,Object> updateValues = new HashMap<>();
-        updateValues.put("displayName", firebaseUser.getDisplayName());
-        updateValues.put("photoUrl", firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null);
-
-        FirebaseUtil.getPeopleRef().child(firebaseUser.getUid()).updateChildren(
-                updateValues,
-                new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError firebaseError, DatabaseReference databaseReference) {
-                        if (firebaseError != null) {
-                            Toast.makeText(MainActivity.this,
-                                    "Couldn't save user data: " + firebaseError.getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+    private void showSignedInUI() {
+        Intent intent  = new Intent(MainActivity.this,FeedsActivity.class);
+        startActivity(intent);
+//
+//        if (firebaseUser.getDisplayName() != null){
+//            userName.setText(firebaseUser.getDisplayName());
+//        }
+//        if (firebaseUser.getPhotoUrl() != null) {
+//            GlideUtil.loadProfileIcon(firebaseUser.getPhotoUrl().toString(), profile_image);
+//        }
+//        Map<String,Object> updateValues = new HashMap<>();
+//        updateValues.put("displayName", firebaseUser.getDisplayName());
+//        updateValues.put("photoUrl", firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null);
+//
+//        FirebaseUtil.getPeopleRef().child(firebaseUser.getUid()).updateChildren(
+//                updateValues,
+//                new DatabaseReference.CompletionListener() {
+//                    @Override
+//                    public void onComplete(DatabaseError firebaseError, DatabaseReference databaseReference) {
+//                        if (firebaseError != null) {
+//                            Toast.makeText(MainActivity.this,
+//                                    "Couldn't save user data: " + firebaseError.getMessage(),
+//                                    Toast.LENGTH_LONG).show();
+//                        }
+//                    }
+//                });
 
 
     }

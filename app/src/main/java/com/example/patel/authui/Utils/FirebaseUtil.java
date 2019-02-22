@@ -86,6 +86,13 @@ public class FirebaseUtil {
         return getBaseRef().child("votes");
     }
 
+    public static DatabaseReference getVotesCounterRef1() {
+        return getBaseRef().child("voteCounter1");
+    }
+    public static DatabaseReference getVotesCounterRef2() {
+        return getBaseRef().child("voteCounter2");
+    }
+
     public static DatabaseReference getFollowersRef() {
         return getBaseRef().child("followers");
     }

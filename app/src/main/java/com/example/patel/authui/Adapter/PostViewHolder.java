@@ -2,31 +2,23 @@ package com.example.patel.authui.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
+import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.patel.authui.FeedsActivity;
-import com.example.patel.authui.Fragments.UserDetails;
 import com.example.patel.authui.R;
 import com.example.patel.authui.UserDetailActivity;
 import com.example.patel.authui.Utils.GlideUtil;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import nl.dionsegijn.konfetti.models.Shape;
-import nl.dionsegijn.konfetti.models.Size;
+import java.text.NumberFormat;
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
 
@@ -34,11 +26,18 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private PostClickListener mListener;
     public DatabaseReference mPostRef;
     public ValueEventListener mPostListener;
+    public String Totalsuffix1;
+    String leftSuffix, rightSuffix;
 
-
+    public void setNumVotes(VoteStatus voted, FragmentActivity activity) {
+    }
 
     public enum LikeStatus {LIKED, NOT_LIKED}
-    public enum VoteStatus{VOTED,NOT_VOTED}
+
+    public enum VoteStatus {VOTED, NOT_VOTED}
+
+    int numvotescounter1 = 1;
+
 
     private final ImageView mLikeIcon;
     private static final int POST_TEXT_MAX_LINES = 6;
@@ -49,10 +48,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private TextView mPostTextView;
     private TextView mTimestampView;
     private TextView mNumLikesView;
+    private TextView mNumPick1Votes, mNumPick2Votes;
     public String mPostKey;
     public ValueEventListener mLikeListener;
     public ValueEventListener mVoteListener;
-
+    public ProgressBar mProgress;
     public TextView mNumVotes;
 
 
@@ -67,6 +67,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         mPostTextView = itemView.findViewById(R.id.post_text);
         mNumLikesView = itemView.findViewById(R.id.number_of_Likes);
         mNumVotes = itemView.findViewById(R.id.number_of_Total_Votes);
+        mNumPick1Votes = itemView.findViewById(R.id.number_of_Firstpick_Votes);
+        mNumPick2Votes = itemView.findViewById(R.id.number_of_Right_Votes);
+
 
         itemView.findViewById(R.id.post_comment_icon).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +91,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             @Override
             public void onClick(View view) {
                 mListener.votes();
-                
+                mListener.votesCounter1();
+
             }
         });
 
@@ -96,6 +100,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             @Override
             public void onClick(View view) {
                 mListener.votes();
+                mListener.votesCounter2();
+
             }
         });
     }
@@ -131,6 +137,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
+
     private void showUserDetail(String authorId) {
 //
 //        Bundle bundle = new Bundle();
@@ -150,7 +157,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         context.startActivity(userDetailIntent);
 
     }
-    public void deletePost(int position){
+
+    public void deletePost(int position) {
 
     }
 
@@ -176,11 +184,24 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
 
-    public void setNumVotes(VoteStatus voted, Context context) {
-    }
     public void setNumVotes(long numVotes) {
-        String suffix = numVotes == 1 ? " Vote" : " Votes";
-        mNumVotes.setText(numVotes + suffix);
+        Totalsuffix1 = numVotes == 1 ? " Vote" : " Votes";
+        mNumVotes.setText(numVotes + Totalsuffix1);
+    }
+
+    public void setNumVotesCounter1(long childrenCount) {
+        leftSuffix = childrenCount == 1 ? " Vote" : " Votes";
+
+        mNumPick1Votes.setText(childrenCount + leftSuffix);
+
+    }
+
+    public void setNumVotesCounter2(long childrenCount) {
+        rightSuffix = childrenCount == 1 ? " Vote" : " Votes";
+//        int a = 100;
+//        String aa =  s * String.valueOf(a);
+
+        mNumPick2Votes.setText(childrenCount + rightSuffix);
     }
 
     public void setTimestamp(String timestamp) {
@@ -203,9 +224,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     public interface PostClickListener {
         void showComments();
+
         void toggleLike();
 
         void votes();
+
+        void votesCounter1();
+
+        void votesCounter2();
     }
 
 }

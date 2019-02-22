@@ -52,7 +52,6 @@
             android:layout_weight="1"
             android:id="@+id/send_comment"
             android:text="Send"
-            style="@style/Widget.AppCompat.Button.Colored"
-            />
+            android:textColor="#757575"/>
     </LinearLayout>
 </LinearLayout>

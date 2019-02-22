@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +24,8 @@ import com.example.patel.authui.Fragments.PostFragment;
 import com.example.patel.authui.Fragments.TopFragment;
 import com.example.patel.authui.Fragments.UserDetails;
 import com.example.patel.authui.Utils.FirebaseUtil;
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +41,7 @@ import butterknife.ButterKnife;
 public class FeedsActivity extends AppCompatActivity implements PostFragment.OnPostSelectedListener {
     @BindView(R.id.addPost)
     Button mAddFeed;
+
 
 
     private ActionBar toolbar;
@@ -64,9 +69,7 @@ public class FeedsActivity extends AppCompatActivity implements PostFragment.OnP
         });
 
 
-
     }
-
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -132,11 +135,75 @@ public class FeedsActivity extends AppCompatActivity implements PostFragment.OnP
             }
         });
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.sign_out:
+                AuthUI.getInstance().signOut(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     public void onPostVoted(final String postKey) {
         final String userKey = FirebaseUtil.getCurrentUserId();
         final DatabaseReference postVotesRef = FirebaseUtil.getVotesRef();
+        postVotesRef.child(postKey).child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // User already liked this post, so we toggle like off.
+                    postVotesRef.child(postKey).child(userKey).removeValue();
+                } else {
+                    postVotesRef.child(postKey).child(userKey).setValue(ServerValue.TIMESTAMP);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onPostCounter1(final String postKey) {
+        final String userKey = FirebaseUtil.getCurrentUserId();
+        final DatabaseReference postVotesRef = FirebaseUtil.getVotesCounterRef1();
+        postVotesRef.child(postKey).child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // User already liked this post, so we toggle like off.
+                    postVotesRef.child(postKey).child(userKey).removeValue();
+                } else {
+                    postVotesRef.child(postKey).child(userKey).setValue(ServerValue.TIMESTAMP);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onPostCounter2(final String postKey) {
+        final String userKey = FirebaseUtil.getCurrentUserId();
+        final DatabaseReference postVotesRef = FirebaseUtil.getVotesCounterRef2();
         postVotesRef.child(postKey).child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

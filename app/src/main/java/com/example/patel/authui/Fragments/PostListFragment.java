@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.patel.authui.Adapter.PostViewHolder;
@@ -107,8 +108,6 @@ public abstract class PostListFragment extends Fragment {
                 setupPost(viewHolder, model, position, null);
 
 
-
-
                 // Set click listener for the whole post view
                 final String postKey = postRef.getKey();
 //                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +140,6 @@ public abstract class PostListFragment extends Fragment {
 //                        onStarClicked(userPostRef);
 //                    }
 //                });
-
 
 
             }
@@ -192,11 +190,36 @@ public abstract class PostListFragment extends Fragment {
                 if (dataSnapshot.hasChild(FirebaseUtil.getCurrentUserId())) {
                     postViewHolder.setNumVotes(PostViewHolder.VoteStatus.VOTED, getActivity());
                 } else {
-                    postViewHolder.setNumVotes(PostViewHolder.VoteStatus.VOTED, getActivity());
+                    postViewHolder.setNumVotes(PostViewHolder.VoteStatus.NOT_VOTED, getActivity());
 
                 }
             }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        ValueEventListener voteCounterListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                postViewHolder.setNumVotesCounter1(dataSnapshot.getChildrenCount());
+                if (dataSnapshot.hasChild(FirebaseUtil.getCurrentUserId())) {
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        ValueEventListener voteCounterListener2 = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                postViewHolder.setNumVotesCounter2(dataSnapshot.getChildrenCount());
+                if (dataSnapshot.hasChild(FirebaseUtil.getCurrentUserId())) {
+                }
+            }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -208,6 +231,12 @@ public abstract class PostListFragment extends Fragment {
 
         FirebaseUtil.getVotesRef().child(postKey).addValueEventListener(voteListener);
         postViewHolder.mVoteListener = voteListener;
+
+        FirebaseUtil.getVotesCounterRef1().child(postKey).addValueEventListener(voteCounterListener1);
+        postViewHolder.mVoteListener = voteCounterListener1;
+
+        FirebaseUtil.getVotesCounterRef2().child(postKey).addValueEventListener(voteCounterListener2);
+        postViewHolder.mVoteListener = voteCounterListener2;
 
         postViewHolder.setPostClickListener(new PostViewHolder.PostClickListener() {
             @Override
@@ -228,6 +257,16 @@ public abstract class PostListFragment extends Fragment {
 
             }
 
+            @Override
+            public void votesCounter1() {
+                mListener.onPostCounter1(postKey);
+
+            }
+            @Override
+            public void votesCounter2() {
+                mListener.onPostCounter2(postKey);
+
+            }
 
         });
 
@@ -295,6 +334,8 @@ public abstract class PostListFragment extends Fragment {
         void onPostLike(String postKey);
 
         void onPostVoted(String postKey);
+        void onPostCounter1(String postKey);
+        void onPostCounter2(String postKey);
 
     }
 

@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -39,6 +40,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class NewPostActivity extends BaseActivity implements
         EasyPermissions.PermissionCallbacks,
         NewPostFragment.TaskCallbacks {
+    private ActionBar toolbar;
 
     public static final String TAG = "NewPostActivity";
     public static final String TAG_TASK_FRAGMENT = "newPostUploadTaskFragment";
@@ -79,7 +81,8 @@ public class NewPostActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_post);
         ButterKnife.bind(this);
-
+        toolbar = getSupportActionBar();
+        toolbar.setTitle("Add");
 
         // find the retained fragment on activity restarts
         FragmentManager fm = getSupportFragmentManager();

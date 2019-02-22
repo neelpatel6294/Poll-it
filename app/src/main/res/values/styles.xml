@@ -15,7 +15,13 @@
         <item name="android:textColor">@android:color/primary_text_light</item>
         <item name="android:textStyle">normal</item>
     </style>
-
+    <style name="FirebaseUI.AuthMethodPicker.Logo">
+        <item name="android:layout_marginTop">300dp</item>
+        <item name="android:layout_width">300dp</item>
+        <item name="android:layout_height">300dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:padding">24dp</item>
+    </style>
     <style name="AppBackgroud">
         <item name="android:background">@drawable/bggg</item>
     </style>

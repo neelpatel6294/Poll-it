@@ -19,6 +19,8 @@ public class Post {
     private String full_storage_uri2;
     private Object timestamp;
 
+    private String votes;
+
 
     @Exclude
     public Map<String, Object> toMap() {
@@ -34,7 +36,7 @@ public class Post {
         result.put("full_storage_uri1", full_storage_uri1);
         result.put("full_storage_uri2", full_storage_uri2);
         result.put("timestamp", timestamp);
-
+        result.put("votes",votes);
         return result;
     }
 
@@ -52,7 +54,7 @@ public class Post {
     public Post(User user, String question, String imageUrl1, String imageUrl2,
                 String thumb_url1, String thumb_url2, String thumb_storage_uri1,
                 String thumb_storage_uri2, String full_storage_uri1,
-                String full_storage_uri2, Object timestamp) {
+                String full_storage_uri2, Object timestamp,String votes) {
 
         this.user = user;
         this.question = question;
@@ -65,12 +67,20 @@ public class Post {
         this.full_storage_uri1 = full_storage_uri1;
         this.full_storage_uri2 = full_storage_uri2;
         this.timestamp = timestamp;
+        this.votes = votes;
     }
 
     public Post() {
     }
 
 
+    public String getVotes() {
+        return votes;
+    }
+
+    public void setVotes(String votes) {
+        votes = votes;
+    }
 
     public String getImageUrl1() {
         return imageUrl1;

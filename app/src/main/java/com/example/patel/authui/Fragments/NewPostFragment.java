@@ -240,7 +240,7 @@ public class NewPostFragment extends Fragment {
                                             "", thumbnailRef1.toString(),
                                            "", fullSizeRef1.toString(),
                                             "",
-                                            ServerValue.TIMESTAMP);
+                                            ServerValue.TIMESTAMP,"");
 
                                     Map<String, Object> updatedUserData = new HashMap<>();
                                     updatedUserData.put(FirebaseUtil.getPeoplePath() + author.getUserId() + "/posts/"

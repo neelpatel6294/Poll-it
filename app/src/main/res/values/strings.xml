@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AuthUi</string>
+    <string name="app_name">PollIt</string>
     <string name="heading_post">Main Feed</string>
     <string name="heading_top">Top Feed</string>
     <string name="picture_chooser_title">Select or take picture to post</string>
